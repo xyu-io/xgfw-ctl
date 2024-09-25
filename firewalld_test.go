@@ -58,7 +58,7 @@ func TestAddAndRemoveOption(t *testing.T) {
 		WithPort("tcp", "22"),
 		WithZone("public"),
 		WithReject(),
-		ToInert(),
+		ToDelete(),
 	)
 	if err != nil {
 		t.Error(err)

@@ -116,7 +116,7 @@ func ToInert() FirewallOption {
 	}
 }
 
-func ToRemove() FirewallOption {
+func ToDelete() FirewallOption {
 	return func(o *Option) {
 		o.opType = "--remove-rich-rule="
 	}
