@@ -11,12 +11,13 @@ firewalld and iptables controller of golang
 ### firewalld
 ```go
 
-	fire := firewalld.BuildOptionOfAdd(
+	fire := firewalld.NewFirewalld(
 		firewalld.WithPermanent(),
 		firewalld.WithFamily("ipv4"),
 		firewalld.WithZone("public"),
 		firewalld.WithPort("tcp", "23"),
 		firewalld.WithReject(),
+	    firewalld.ToInsert(),
 	)
 	out, err := fire.Exec()
 	if err != nil {
@@ -30,7 +31,7 @@ firewalld and iptables controller of golang
 		log.Printf("rule list\n%+v", out)
 	}
 
-	delArgs, err := firewalld.OptionOfRemoveWithAdd(fire.GetAddArgs())
+	delArgs, err := firewalld.DeleteArgsWithInert(fire.InsertArgs())
 	if err != nil {
 		return
 	}

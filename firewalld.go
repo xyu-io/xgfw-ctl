@@ -147,7 +147,7 @@ func NewFirewalld(opts ...FirewallOption) (*Firewalld, error) {
 	return firewallIns, nil
 }
 
-func RemoveArgsWithInert(opts []string) ([]string, error) {
+func DeleteArgsWithInert(opts []string) ([]string, error) {
 	var args = opts
 	var flag = false
 	for index, option := range opts {

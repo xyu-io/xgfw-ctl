@@ -94,7 +94,7 @@ func TestAddAndRemove(t *testing.T) {
 		log.Printf("rule list\n%+v", out)
 	}
 
-	delArgs, err := RemoveArgsWithInert(fire.InsertArgs())
+	delArgs, err := DeleteArgsWithInert(fire.InsertArgs())
 	if err != nil {
 		return
 	}
