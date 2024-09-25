@@ -26,7 +26,7 @@ const (
 )
 
 type Option struct {
-	Output string
+	opType string
 
 	Permanent    string
 	Zone         string
@@ -43,7 +43,7 @@ type Firewalld struct {
 	Option
 }
 
-func (fr *Firewalld) GetAddArgs() []string {
+func (fr *Firewalld) InsertArgs() []string {
 	return fr.addArgs
 }
 
@@ -110,7 +110,19 @@ func WithDrop() FirewallOption {
 	}
 }
 
-func BuildOptionOfAdd(opts ...FirewallOption) *Firewalld {
+func ToInert() FirewallOption {
+	return func(o *Option) {
+		o.opType = "--add-rich-rule="
+	}
+}
+
+func ToRemove() FirewallOption {
+	return func(o *Option) {
+		o.opType = "--remove-rich-rule="
+	}
+}
+
+func NewFirewalld(opts ...FirewallOption) (*Firewalld, error) {
 	o := &Option{}
 	for _, opt := range opts {
 		opt(o)
@@ -122,40 +134,20 @@ func BuildOptionOfAdd(opts ...FirewallOption) *Firewalld {
 	arg := strings.Join(append([]string{o.Family, o.SourceAddr, o.PortProtocol, o.Service, o.Operate}), " ")
 	words := strings.Fields(arg)
 
-	args = append(args, o.Permanent, o.Zone, fmt.Sprintf("%s%s", "--add-rich-rule=", strings.Join(words, " ")))
+	if o.opType == "" {
+		return nil, errors.New("--opType is required")
+	}
+	args = append(args, o.Permanent, o.Zone, fmt.Sprintf("%s%s", o.opType, strings.Join(words, " ")))
 
 	firewallIns := &Firewalld{
 		Runner:  NewRunner(args),
 		addArgs: args,
 	}
 
-	return firewallIns
+	return firewallIns, nil
 }
 
-func BuildOptionOfRemove(opts ...FirewallOption) *Firewalld {
-	o := &Option{}
-	for _, opt := range opts {
-		opt(o)
-	}
-	if o.Family == "" {
-		log.Println("Warning: --family is required")
-	}
-	var args []string
-	arg := strings.Join(append([]string{o.Family, o.SourceAddr, o.PortProtocol, o.Service, o.Operate}), " ")
-	words := strings.Fields(arg)
-
-	args = append(args, o.Permanent, o.Zone, fmt.Sprintf("%s%s", "--remove-rich-rule=", strings.Join(words, " ")))
-
-	//words := strings.Fields(strings.Join(args, " "))
-	firewallIns := &Firewalld{
-		Runner: NewRunner(args),
-		Option: Option{},
-	}
-
-	return firewallIns
-}
-
-func OptionOfRemoveWithAdd(opts []string) ([]string, error) {
+func RemoveArgsWithInert(opts []string) ([]string, error) {
 	var args = opts
 	var flag = false
 	for index, option := range opts {

@@ -6,13 +6,18 @@ import (
 )
 
 func TestFirewalld(t *testing.T) {
-	fire := BuildOptionOfAdd(
+	fire, err := NewFirewalld(
 		WithPermanent(),
 		WithFamily("ipv4"),
 		WithPort("tcp", "22"),
 		WithZone("public"),
 		WithReject(),
 	)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
 	out, err := fire.Exec()
 	if err != nil {
 		t.Error(err)
@@ -23,16 +28,21 @@ func TestFirewalld(t *testing.T) {
 
 func TestFirewalldAll(t *testing.T) {
 
-	fire := BuildOptionOfAdd(
+	fire, err := NewFirewalld(
 		WithPermanent(),
 		WithFamily("ipv4"),
 		WithZone("public"),
 		WithPort("tcp", "23"),
 		WithReject(),
 	)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
 	out, err := fire.Exec()
 	if err != nil {
-		log.Println(err)
+		t.Error(err)
 		return
 	}
 	log.Println("add", out)
@@ -42,14 +52,14 @@ func TestFirewalldAll(t *testing.T) {
 		log.Printf("rule list\n%+v", out)
 	}
 
-	delArgs, err := OptionOfRemoveWithAdd(fire.GetAddArgs())
+	delArgs, err := RemoveArgsWithInert(fire.InsertArgs())
 	if err != nil {
 		return
 	}
 
 	out, err = fire.ExecArgs(delArgs)
 	if err != nil {
-		log.Println(err)
+		t.Error(err)
 		return
 	}
 	log.Println("remove", out)

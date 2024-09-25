@@ -6,57 +6,82 @@ import (
 )
 
 func TestOption(t *testing.T) {
-	fire := BuildOptionOfAdd(
+	fire, err := NewFirewalld(
 		WithPermanent(),
 		WithFamily("ipv4"),
 		WithPort("tcp", "22"),
 		WithSrcAddr("193.168.1.1"),
 		WithZone("public"),
 		WithReject(),
+		ToInert(),
 	)
-	t.Logf("firewalld option is : %s", fire.GetAddArgs())
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Logf("firewalld option is : %s", fire.InsertArgs())
 }
 
 func TestAddOption(t *testing.T) {
-	fire := BuildOptionOfAdd(
+	fire, err := NewFirewalld(
 		WithPermanent(),
 		WithPort("tcp", "22"),
 		WithZone("public"),
 		WithReject(),
+		ToInert(),
 	)
-	t.Logf("firewalld option is : %s", fire.GetAddArgs())
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Logf("firewalld option is : %s", fire.InsertArgs())
 }
 
 func TestAddAndRemoveOption(t *testing.T) {
-	fire := BuildOptionOfAdd(
+	fire, err := NewFirewalld(
 		WithPermanent(),
 		WithFamily("ipv4"),
 		WithPort("tcp", "22"),
 		WithZone("public"),
 		WithReject(),
+		ToInert(),
 	)
-	t.Logf("add firewalld option is : %s", fire.GetAddArgs())
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Logf("add firewalld option is : %s", fire.InsertArgs())
 
-	fire = BuildOptionOfRemove(
+	fire, err = NewFirewalld(
 		WithPermanent(),
 		WithFamily("ipv4"),
 		WithPort("tcp", "22"),
 		WithZone("public"),
 		WithReject(),
+		ToInert(),
 	)
+	if err != nil {
+		t.Error(err)
+		return
+	}
 
-	t.Logf("del firewalld option is : %s", fire.GetAddArgs())
+	t.Logf("del firewalld option is : %s", fire.InsertArgs())
 }
 
 func TestAddAndRemove(t *testing.T) {
 
-	fire := BuildOptionOfAdd(
+	fire, err := NewFirewalld(
 		WithPermanent(),
 		WithFamily("ipv4"),
 		WithZone("public"),
 		WithPort("tcp", "23"),
 		WithReject(),
+		ToInert(),
 	)
+	if err != nil {
+		t.Error(err)
+		return
+	}
 	out, err := fire.Exec()
 	if err != nil {
 		log.Fatal(err)
@@ -69,7 +94,7 @@ func TestAddAndRemove(t *testing.T) {
 		log.Printf("rule list\n%+v", out)
 	}
 
-	delArgs, err := OptionOfRemoveWithAdd(fire.GetAddArgs())
+	delArgs, err := RemoveArgsWithInert(fire.InsertArgs())
 	if err != nil {
 		return
 	}
