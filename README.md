@@ -1,4 +1,4 @@
-# xgfw-ctl
+# xgfwlib
 
 ## Description
 
@@ -10,15 +10,18 @@ firewalld and iptables controller of golang
 ## exp
 ### firewalld
 ```go
-
-	fire := firewalld.NewFirewalld(
-		firewalld.WithPermanent(),
-		firewalld.WithFamily("ipv4"),
-		firewalld.WithZone("public"),
-		firewalld.WithPort("tcp", "23"),
-		firewalld.WithReject(),
-	    firewalld.ToInsert(),
+	fire, err := NewFirewalld(
+		WithPermanent(),
+		WithFamily("ipv4"),
+		WithZone("public"),
+		WithPort("tcp", "23"),
+		WithReject(),
+		ToInert(),
 	)
+	if err != nil {
+		t.Error(err)
+		return
+	}
 	out, err := fire.Exec()
 	if err != nil {
 		log.Fatal(err)
@@ -31,7 +34,7 @@ firewalld and iptables controller of golang
 		log.Printf("rule list\n%+v", out)
 	}
 
-	delArgs, err := firewalld.DeleteArgsWithInert(fire.InsertArgs())
+	delArgs, err := DeleteArgsWithInert(fire.InsertArgs())
 	if err != nil {
 		return
 	}

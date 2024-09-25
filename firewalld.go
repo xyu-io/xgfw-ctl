@@ -1,4 +1,4 @@
-package xgfw_ctl
+package xgfwlib
 
 import (
 	"errors"
